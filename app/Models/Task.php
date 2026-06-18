@@ -9,7 +9,7 @@ use Exception;
 
 class Task extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;    
 
     // Menentukan tabel secara eksplisit karena nanti ada class turunan
     protected $table = 'tasks'; 
