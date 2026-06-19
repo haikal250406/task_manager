@@ -1,20 +1,49 @@
-# Project Akhir - Aplikasi Task Maneger
-aplikasi menajemen  tugas kelompok berbasis webb dengan penerapan prinsip OPP.
+# 🚀 Aplikasi Task Manager Berbasis Web
 
-## Aggota Kelompok :
-1. M.Haikal
-2. salman al farisi 
-3. Erliadi
-4. Jefri mulya pratama
+Aplikasi **Task Manager** adalah platform manajemen tugas kolaboratif berbasis web yang dibangun untuk memudahkan pelacakan, pengorganisasian, dan pembagian tugas dalam sebuah proyek. 
 
+Proyek ini dibangun menggunakan **Framework Laravel (PHP)** dengan mengimplementasikan prinsip-prinsip **Pemrograman Berorientasi Objek (OOP)** secara menyeluruh pada arsitektur MVC (Model-View-Controller). Proyek ini ditujukan untuk memenuhi kriteria Tugas Akhir mata kuliah OOP.
 
+## 👥 Anggota Kelompok
+1. **M. Haikal**
+2. **Salman Al Farisi**
+3. **Erliadi**
+4. **Jefri Mulya Pratama**
 
-# project akhir - aplikasi task maneger
-## deskripsi project 
-aplikasi task maneger adalah platform berbasis web yg di kembangkan untuk memudahkan manajemen,pelacakan dan pengorganisasian tugas secara kolaboratif. project ini dibangun mengunakan framework laravel (PHP) dengan mengimplementasikan prinsip prinsip pemorgaman berorientasi objeck pada arsitektur MVC (model-view-controller).
-Project ini ditujukan untuk memenuhi kriteria tugas akhir kuliah OPP. 
+---
 
-## fitur utama project
-1. manajemen tugas (CRUD): Pengguna dapat menambah, melihat, mengedit, dan menghapus tugas.
-2. Pelacakan Status (Kanban Board): Memudahkan visualisasi progres tugas berdasarkan status (misalnya: To-Do, In Progress, Done).
-3. Manajemen Database Relasional: Menggunakan sistem database MySQL yang terintegrasi dengan  Eloquent ORM Laravel.
+## ✨ Fitur Utama
+* **Sistem Autentikasi:** Fitur Login dan Registrasi pengguna yang aman.
+* **Manajemen Proyek (CRUD):** Pengguna dapat membuat, melihat, mengedit, dan mengelola proyek tim.
+* **Papan Kanban (Kanban Board):** Visualisasi progres tugas yang interaktif dengan tiga status utama: `To Do`, `In Progress`, dan `Done`.
+* **Kategori Tugas Cerdas:** Pemisahan tugas berdasarkan tipe, seperti *Bug* dan *Feature*.
+* **Soft Deletes:** Fitur pemulihan keamanan data. Data proyek atau tugas yang dihapus tidak akan hilang permanen dari *database*.
+
+---
+
+## 💻 Penerapan Prinsip OOP (Object-Oriented Programming)
+Aplikasi ini tidak sekadar menggunakan fungsionalitas dasar framework, melainkan secara aktif mendemonstrasikan pilar-pilar OOP:
+
+1. **Encapsulation (Enkapsulasi):** Memproteksi data *database* menggunakan modifier `protected $fillable` pada setiap class Model agar hanya kolom tertentu yang diizinkan untuk diisi pengguna.
+2. **Inheritance (Pewarisan):** Model `BugTask` dan `FeatureTask` mewarisi (*extends*) seluruh atribut dan fungsionalitas dari class induk `Task`.
+3. **Polymorphism (Polimorfisme):** Penggunaan *Global Scopes* dan method `booted()` pada class anak (seperti `BugTask`) untuk mengubah perilaku otomatis *query builder* tanpa mengubah class induknya.
+4. **Object & Class:** Pembuatan dan manipulasi objek secara dinamis di dalam layer *Controller* untuk memproses setiap antarmuka pengguna (View).
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+* **Bahasa & Framework:** PHP 8.3+, Laravel 
+* **Database:** MySQL (Terintegrasi dengan Eloquent ORM Laravel)
+* **Frontend:** HTML5, CSS3, Bootstrap 5, SASS
+* **Version Control:** Git & GitHub
+
+---
+
+## ⚙️ Cara Instalasi & Menjalankan Proyek (Setup Guide)
+
+Bagi dosen atau penguji yang ingin menjalankan aplikasi ini di mesin lokal (seperti XAMPP / Laragon), silakan ikuti langkah-langkah berikut:
+
+1. **Clone Repositori:**
+   ```bash
+   git clone [https://github.com/](https://github.com/)[URL_GITHUB_KALIAN_DISINI]/task_manager.git
+   cd task_manager
