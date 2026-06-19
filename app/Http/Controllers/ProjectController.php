@@ -3,55 +3,173 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-        // Menampilkan semua proyek
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Display a listing of projects
+     */
     public function index(Request $request)
     {
-        // Menangkap kata kunci dari kotak pencarian
-        $search = $request->query('search');
+        $query = Project::with(['user', 'tasks']);
 
-        // Mengambil proyek, jika ada pencarian maka filter berdasarkan nama
-        $projects = Project::withCount('tasks')
-            ->when($search, function ($query, $search) {
-                return $query->where('name', 'like', "%{$search}%")
-                             ->orWhere('description', 'like', "%{$search}%");
-            })
-            ->get(); 
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
 
-        return view('projects.index', compact('projects', 'search'));
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by owner (for admin)
+        if ($request->filled('user_id') && auth()->user()->isAdmin()) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        $projects = $query->latest()->paginate(12)->withQueryString();
+
+        return view('projects.index', compact('projects'));
     }
-        // Menampilkan halaman form buat proyek
+
+    /**
+     * Show the form for creating a new project
+     */
     public function create()
     {
         return view('projects.create');
     }
-        // Menyimpan data proyek baru ke database
+
+    /**
+     * Store a newly created project
+     */
     public function store(Request $request)
     {
-        // Validasi input agar nama proyek tidak boleh kosong
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string|max:1000',
+            'status' => 'required|in:active,on_hold,completed,cancelled',
+        ], [
+            'name.required' => 'Nama proyek wajib diisi',
+            'name.max' => 'Nama proyek maksimal 255 karakter',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status tidak valid',
         ]);
 
-        Project::create($request->all());
+        // Set user_id to current authenticated user
+        $validated['user_id'] = auth()->id();
 
-        return redirect()->route('projects.index')->with('success', 'Proyek berhasil dibuat!');
+        $project = Project::create($validated);
+
+        // Log activity
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'create',
+            'model_type' => Project::class,
+            'model_id' => $project->id,
+            'description' => "Membuat proyek baru: {$project->name}",
+            'new_values' => $project->toArray(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('projects.index')
+            ->with('success', "Proyek '{$project->name}' berhasil dibuat!");
     }
 
-        // Menampilkan detail proyek beserta Papan Kanban (Tasks) di dalamnya
+    /**
+     * Display the specified project
+     */
     public function show(Project $project)
     {
-        // Memuat tugas-tugas yang terkait dengan proyek ini
-        $tasks = $project->tasks; 
-        return view('projects.show', compact('project', 'tasks'));
+        $project->load(['user', 'tasks' => function($query) {
+            $query->latest();
+        }]);
+
+        $taskStats = $project->getTaskStats();
+
+        return view('projects.show', compact('project', 'taskStats'));
     }
+
+    /**
+     * Show the form for editing the specified project
+     */
+    public function edit(Project $project)
+    {
+        return view('projects.edit', compact('project'));
+    }
+
+    /**
+     * Update the specified project
+     */
+    public function update(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'status' => 'required|in:active,on_hold,completed,cancelled',
+        ], [
+            'name.required' => 'Nama proyek wajib diisi',
+            'name.max' => 'Nama proyek maksimal 255 karakter',
+            'status.required' => 'Status wajib dipilih',
+        ]);
+
+        $oldValues = $project->only(['name', 'description', 'status']);
+
+        $project->update($validated);
+
+        // Log activity
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'update',
+            'model_type' => Project::class,
+            'model_id' => $project->id,
+            'description' => "Mengupdate proyek: {$project->name}",
+            'old_values' => $oldValues,
+            'new_values' => $project->only(['name', 'description', 'status']),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('projects.index')
+            ->with('success', "Proyek '{$project->name}' berhasil diupdate!");
+    }
+
+    /**
+     * Remove the specified project
+     */
     public function destroy(Project $project)
     {
-        $project->delete(); # ini tidak akan menghapus permanen
-        return back()->with('success', 'Proyek berhasil dipindahkan ke Tong Sampah.');
+        $projectName = $project->name;
+        $oldValues = $project->toArray();
+
+        $project->delete(); // Soft delete
+
+        // Log activity
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'delete',
+            'model_type' => Project::class,
+            'model_id' => $project->id,
+            'description' => "Menghapus proyek: {$projectName}",
+            'old_values' => $oldValues,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return redirect()->route('projects.index')
+            ->with('success', "Proyek '{$projectName}' berhasil dihapus!");
     }
 }

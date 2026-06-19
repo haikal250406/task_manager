@@ -3,74 +3,189 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
-use App\Models\BugTask;
-use App\Models\FeatureTask;
+use App\Models\Project;
+use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
-use Exception;
 
 class TaskController extends Controller
 {
-    // Menampilkan halaman form untuk membuat tugas baru
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Display a listing of tasks (User View)
+     */
+    public function index(Request $request)
+    {
+        $query = Task::with(['project', 'user']);
+
+        // Filter by project
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by priority
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $tasks = $query->latest()->paginate(15)->withQueryString();
+        $projects = Project::active()->orderBy('name')->get();
+        $users = User::active()->orderBy('name')->get();
+
+        return view('tasks.index', compact('tasks', 'projects', 'users'));
+    }
+
+    /**
+     * Show the form for creating a new task
+     */
     public function create(Request $request)
     {
-        // Pastikan parameter proyek tersedia sebelum membuka form pembuatan tugas
-        $projectId = $request->query('project');
+        $projects = Project::active()->orderBy('name')->get();
+        $users = User::active()->orderBy('name')->get();
+        $projectId = $request->query('project_id');
 
-        if (! $projectId) {
-            return redirect()->route('projects.index')->with('error', 'Pilih proyek terlebih dahulu sebelum menambah tugas.');
-        }
-
-        $project = \App\Models\Project::find($projectId);
-
-        if (! $project) {
-            return redirect()->route('projects.index')->with('error', 'Proyek yang diminta tidak ditemukan. Silakan pilih proyek lain.');
-        }
-
-        return view('tasks.create', compact('project'));
+        return view('tasks.create', compact('projects', 'users', 'projectId'));
     }
-    // Menyimpan tugas baru ke database
+
+    /**
+     * Store a newly created task
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'project_id' => 'required|exists:projects,id',
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'type' => 'required|in:Bug,Feature',
-            'priority' => 'required|in:Low,Medium,High,Critical',
-            'deadline' => 'required|date|after_or_equal:today'
-        ], [
-            'deadline.after_or_equal' => 'Peringatan: Tenggat waktu tidak boleh di masa lalu! Pilih tanggal hari ini atau ke depannya.'
+            'description' => 'nullable|string|max:1000',
+            'status' => 'required|in:to_do,in_progress,done',
+            'priority' => 'required|in:low,medium,high,critical',
+            'deadline' => 'nullable|date',
+            'project_id' => 'required|exists:projects,id',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        try {
-            // INHERITANCE DALAM AKSI:
-            // Menyimpan ke class turunan yang berbeda berdasarkan input 'type'
-            if ($request->type === 'Bug') {
-                BugTask::create($request->all());
-            } else {
-                FeatureTask::create($request->all());
-            }
+        $task = Task::create($validated);
 
-            return redirect()->route('projects.show', $request->project_id)->with('success', 'Tugas baru berhasil ditambahkan!');
-        } catch (Exception $e) {
-            // Menangkap error jika deadline di masa lalu (dari fungsi Enkapsulasi Model)
-            return back()->with('error', $e->getMessage());
-        }
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'create',
+            'model_type' => Task::class,
+            'model_id' => $task->id,
+            'description' => "Membuat tugas baru: {$task->title}",
+            'new_values' => $task->toArray(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('tasks.index')
+            ->with('success', "Tugas '{$task->title}' berhasil dibuat!");
     }
-    
-    // Fungsi untuk mengubah status tugas di Kanban
-    public function updateStatus(\Illuminate\Http\Request $request, \App\Models\Task $task)
+
+    /**
+     * Display the specified task
+     */
+    public function show(Task $task)
     {
-        // Validasi
-        $request->validate([
-            'status' => 'required|in:To Do,In Progress,Done'
+        $task->load(['project', 'user']);
+        return view('tasks.show', compact('task'));
+    }
+
+    /**
+     * Show the form for editing the specified task
+     */
+    public function edit(Task $task)
+    {
+        $projects = Project::active()->orderBy('name')->get();
+        $users = User::active()->orderBy('name')->get();
+        return view('tasks.edit', compact('task', 'projects', 'users'));
+    }
+
+    /**
+     * Update the specified task
+     */
+    public function update(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'status' => 'required|in:to_do,in_progress,done',
+            'priority' => 'required|in:low,medium,high,critical',
+            'deadline' => 'nullable|date',
+            'project_id' => 'required|exists:projects,id',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        // Simpan perubahan ke database
-        $task->update([
-            'status' => $request->status
+        $oldValues = $task->toArray();
+        $task->update($validated);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'update',
+            'model_type' => Task::class,
+            'model_id' => $task->id,
+            'description' => "Mengupdate tugas: {$task->title}",
+            'old_values' => $oldValues,
+            'new_values' => $task->toArray(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
-        // Kembali ke halaman Kanban
-        return back()->with('success', 'Status berhasil dipindah!');
+        return redirect()->route('tasks.index')
+            ->with('success', "Tugas '{$task->title}' berhasil diupdate!");
+    }
+
+    /**
+     * Remove the specified task
+     */
+    public function destroy(Task $task)
+    {
+        $taskTitle = $task->title;
+        $task->delete();
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'delete',
+            'model_type' => Task::class,
+            'model_id' => $task->id,
+            'description' => "Menghapus tugas: {$taskTitle}",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return redirect()->route('tasks.index')
+            ->with('success', "Tugas '{$taskTitle}' berhasil dihapus!");
+    }
+
+    /**
+     * Update task status (for Kanban board)
+     */
+    public function updateStatus(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:to_do,in_progress,done',
+        ]);
+
+        $task->update(['status' => $validated['status']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status tugas berhasil diupdate',
+        ]);
     }
 }
