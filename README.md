@@ -9,6 +9,7 @@ Proyek ini dibangun menggunakan **Framework Laravel (PHP)** dengan mengimplement
 2. **Salman Al Farisi**
 3. **Erliadi**
 4. **Jefri Mulya Pratama**
+5. **Aldi Kurniawan**
 
 ---
 
@@ -47,3 +48,32 @@ Bagi dosen atau penguji yang ingin menjalankan aplikasi ini di mesin lokal (sepe
    ```bash
    git clone [https://github.com/](https://github.com/)[URL_GITHUB_KALIAN_DISINI]/task_manager.git
    cd task_manager
+
+## 1. Instalasi Dependensi PHP & Frontend:
+```bash
+composer install
+npm install
+npm run build
+```
+## 2. Pengaturan Database (Environment):
+* Salin file .env.example menjadi .env.
+
+* Buka file .env dan sesuaikan koneksi database (buat database baru di MySQL, misalnya db_task_manager):
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_task_manager
+DB_USERNAME=root
+DB_PASSWORD=
+```
+## 3. Generate Kunci Aplikasi & Migrasi Database:
+``` bash   
+php artisan key:generate
+php artisan migrate
+```
+## 4. Nyalakan Server Lokal:
+``` bash
+php artisan serve
+```
+Aplikasi siap diakses melalui browser pada alamat: http://localhost:8000
