@@ -13,13 +13,19 @@ class TaskController extends Controller
     // Menampilkan halaman form untuk membuat tugas baru
     public function create(Request $request)
     {
-        // Mengambil ID proyek dari URL
+        // Pastikan parameter proyek tersedia sebelum membuka form pembuatan tugas
         $projectId = $request->query('project');
-        
-        // Mencari data proyek berdasarkan ID
-        $project = \App\Models\Project::findOrFail($projectId);
 
-        // Membuka halaman form 'tasks.create' dan membawa data proyek
+        if (! $projectId) {
+            return redirect()->route('projects.index')->with('error', 'Pilih proyek terlebih dahulu sebelum menambah tugas.');
+        }
+
+        $project = \App\Models\Project::find($projectId);
+
+        if (! $project) {
+            return redirect()->route('projects.index')->with('error', 'Proyek yang diminta tidak ditemukan. Silakan pilih proyek lain.');
+        }
+
         return view('tasks.create', compact('project'));
     }
     // Menyimpan tugas baru ke database
