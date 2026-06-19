@@ -9,6 +9,7 @@ Proyek ini dibangun menggunakan **Framework Laravel (PHP)** dengan mengimplement
 2. **Salman Al Farisi**
 3. **Erliadi**
 4. **Jefri Mulya Pratama**
+5. **Aldi Kurniawan**
 
 ---
 
