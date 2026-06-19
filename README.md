@@ -15,6 +15,6 @@ aplikasi task maneger adalah platform berbasis web yg di kembangkan untuk memuda
 Project ini ditujukan untuk memenuhi kriteria tugas akhir kuliah OPP. 
 
 ## fitur utama project
-1. manajemen tugas (CRUD): Pengguna dapat menambah, melihat, mengedit, dan       menghapus tugas.
+1. manajemen tugas (CRUD): Pengguna dapat menambah, melihat, mengedit, dan menghapus tugas.
 2. Pelacakan Status (Kanban Board): Memudahkan visualisasi progres tugas berdasarkan status (misalnya: To-Do, In Progress, Done).
 3. Manajemen Database Relasional: Menggunakan sistem database MySQL yang terintegrasi dengan  Eloquent ORM Laravel.

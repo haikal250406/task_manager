@@ -50,22 +50,21 @@ class TaskController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-
-    // Mengubah status tugas (To Do -> In Progress -> Done)
-    public function updateStatus(Request $request, Task $task)
+    
+    // Fungsi untuk mengubah status tugas di Kanban
+    public function updateStatus(\Illuminate\Http\Request $request, \App\Models\Task $task)
     {
-        try {
-            // ENKAPSULASI DALAM AKSI:
-            // Kita tidak mengubah $task->status secara langsung, melainkan lewat method khusus
-            $task->changeStatus($request->status);
-            
-            // POLIMORFISME DALAM AKSI:
-            // Mengambil pesan notifikasi yang berbeda tergantung priority
-            $pesanNotifikasi = $task->getNotificationRule();
+        // Validasi
+        $request->validate([
+            'status' => 'required|in:To Do,In Progress,Done'
+        ]);
 
-            return back()->with('success', "Status diperbarui! Aturan Notifikasi: " . $pesanNotifikasi);
-        } catch (Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
-        }
+        // Simpan perubahan ke database
+        $task->update([
+            'status' => $request->status
+        ]);
+
+        // Kembali ke halaman Kanban
+        return back()->with('success', 'Status berhasil dipindah!');
     }
 }

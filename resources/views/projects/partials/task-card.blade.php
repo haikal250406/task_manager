@@ -34,7 +34,53 @@
                 @endif
             </span>
         </div>
+        <div class="mt-3 border-top pt-2">
+    
+    @if($task->status == 'To Do')
+        <form action="{{ route('tasks.update_status', $task->id) }}" method="POST">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status" value="In Progress">
+            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">
+                Mulai Kerjakan &rarr;
+            </button>
+        </form>
 
+    @elseif($task->status == 'In Progress')
+        <div class="d-flex gap-2">
+            <form action="{{ route('tasks.update_status', $task->id) }}" method="POST" class="w-50">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" value="To Do">
+                <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                    &larr; Batal
+                </button>
+            </form>
+            
+            <form action="{{ route('tasks.update_status', $task->id) }}" method="POST" class="w-50">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" value="Done">
+                <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">
+                    Selesai &rarr;
+                </button>
+            </form>
+        </div>
+
+    @elseif($task->status == 'Done')
+        <form action="{{ route('tasks.update_status', $task->id) }}" method="POST">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status" value="In Progress">
+            <button type="submit" class="btn btn-outline-warning btn-sm w-100 text-dark">
+                &larr; Revisi (Kerjakan Ulang)
+            </button>
+        </form>
+    @endif
+
+</div>
+
+    
     </div>
 </div>
 
