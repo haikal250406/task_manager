@@ -6,6 +6,7 @@ aplikasi menajemen  tugas kelompok berbasis webb dengan penerapan prinsip OPP.
 2. salman al farisi 
 3. Erliadi
 4. Jefri mulya pratama
+5. Aldi Kurniawan
 
 
 
