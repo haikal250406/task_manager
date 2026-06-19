@@ -25,7 +25,7 @@
             <a href="{{ route('projects.index') }}" class="btn btn-dark rounded-3 px-4 py-2 fw-medium shadow-sm d-flex align-items-center">
                 <i class="fas fa-project-diagram me-2"></i> Daftar Proyek
             </a>
-            <a href="{{ route('tasks.create') }}" class="btn btn-outline-primary rounded-3 px-4 py-2 fw-medium shadow-sm d-flex align-items-center">
+            <a href="{{ route('projects.index') }}" class="btn btn-outline-primary rounded-3 px-4 py-2 fw-medium shadow-sm d-flex align-items-center">
                 <i class="fas fa-plus-circle me-2"></i> Tambah Tugas
             </a>
         </div>
