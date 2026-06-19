@@ -3,16 +3,23 @@
 @section('content')
 <div class="container-fluid py-4 px-3">
     @php
-        // Ambil data dari controller, atau fallback ke default
+        // === Normalisasi variabel dari controller (fallback ke 0 jika tidak ada) ===
         $totalCount = $totalTasksCount ?? $totalTasks ?? 0;
         $completedCount = $completedTasksCount ?? $completedTasks ?? 0;
-        $overdueCount = $overdueCount ?? (is_countable($overdueTasks) ? count($overdueTasks) : (is_object($overdueTasks) && method_exists($overdueTasks, 'count') ? $overdueTasks->count() : 0));
+        $overdueCount = $overdueCount ?? (
+            is_countable($overdueTasks) ? count($overdueTasks) :
+            (is_object($overdueTasks) && method_exists($overdueTasks, 'count') ? $overdueTasks->count() : 0)
+        );
         $activeProjectsCount = $activeProjectsCount ?? $activeProjects ?? 0;
         $progressPercentage = $progressPercentage ?? 0;
 
-        // Hitung data turunan untuk UI
+        // === Hitung turunan untuk UI ===
         $pendingCount = max(0, $totalCount - $completedCount);
         $onTrackCount = max(0, $activeProjectsCount - $overdueCount);
+        $completedPercentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+        $pendingPercentage = $totalCount > 0 ? round(($pendingCount / $totalCount) * 100) : 0;
+        $onTrackPercentage = $activeProjectsCount > 0 ? round(($onTrackCount / $activeProjectsCount) * 100) : 0;
+        $overduePercentage = $activeProjectsCount > 0 ? round(($overdueCount / $activeProjectsCount) * 100) : 0;
     @endphp
 
     <!-- Header -->
@@ -31,9 +38,9 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Stats Cards Grid -->
     <div class="row g-4 mb-5">
-        <!-- Card 1: Tugas Keseluruhan -->
+        <!-- Card 1: Total Tugas -->
         <div class="col-xl-3 col-lg-6 col-md-6">
             <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden transition-all hover:shadow-xl">
                 <div class="bg-gradient-to-r from-slate-700 to-slate-800 p-4">
@@ -48,14 +55,13 @@
                     </div>
                 </div>
                 <div class="card-body pt-4 pb-3">
-                    <!-- Mini Pie Chart (Visualisasi Sederhana) -->
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-success bg-opacity-10 text-success small px-2 py-1">Selesai: {{ $completedCount }}</span>
                         <span class="badge bg-warning bg-opacity-10 text-warning small px-2 py-1">Pending: {{ $pendingCount }}</span>
                     </div>
                     <div class="progress rounded-pill" style="height: 8px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $totalCount > 0 ? ($completedCount / $totalCount) * 100 : 0 }}%" aria-valuenow="{{ $completedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalCount }}"></div>
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $totalCount > 0 ? ($pendingCount / $totalCount) * 100 : 0 }}%" aria-valuenow="{{ $pendingCount }}" aria-valuemin="0" aria-valuemax="{{ $totalCount }}"></div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $completedPercentage }}%" aria-valuenow="{{ $completedCount }}" aria-valuemin="0" aria-valuemax="{{ $totalCount }}"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $pendingPercentage }}%" aria-valuenow="{{ $pendingCount }}" aria-valuemin="0" aria-valuemax="{{ $totalCount }}"></div>
                     </div>
                 </div>
             </div>
@@ -68,7 +74,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="text-white-75 mb-1 fw-medium">Progres Keseluruhan</p>
-                            <h2 class="text-white fw-bold mb-0">{{ is_numeric($progressPercentage) ? $progressPercentage : 0 }}%</h2>
+                            <h2 class="text-white fw-bold mb-0">{{ $progressPercentage }}%</h2>
                         </div>
                         <div class="bg-blue-100 text-blue-700 p-3 rounded-circle">
                             <i class="fas fa-chart-line fa-lg"></i>
@@ -78,9 +84,8 @@
                 <div class="card-body pt-4 pb-3">
                     <div class="progress rounded-pill" style="height: 8px;">
                         <div class="progress-bar bg-blue-500 rounded-pill" role="progressbar"
-                             style="width: {{ is_numeric($progressPercentage) ? $progressPercentage : 0 }}%;"
-                             aria-valuenow="{{ is_numeric($progressPercentage) ? $progressPercentage : 0 }}"
-                             aria-valuemin="0" aria-valuemax="100"></div>
+                             style="width: {{ $progressPercentage }}%;"
+                             aria-valuenow="{{ $progressPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
@@ -132,13 +137,12 @@
                         <span class="badge bg-danger bg-opacity-10 text-danger small px-2 py-1">Overdue: {{ $overdueCount }}</span>
                     </div>
                     <div class="progress rounded-pill" style="height: 8px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $activeProjectsCount > 0 ? ($onTrackCount / $activeProjectsCount) * 100 : 0 }}%" aria-valuenow="{{ $onTrackCount }}" aria-valuemin="0" aria-valuemax="{{ $activeProjectsCount }}"></div>
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $activeProjectsCount > 0 ? ($overdueCount / $activeProjectsCount) * 100 : 0 }}%" aria-valuenow="{{ $overdueCount }}" aria-valuemin="0" aria-valuemax="{{ $activeProjectsCount }}"></div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $onTrackPercentage }}%" aria-valuenow="{{ $onTrackCount }}" aria-valuemin="0" aria-valuemax="{{ $activeProjectsCount }}"></div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $overduePercentage }}%" aria-valuenow="{{ $overdueCount }}" aria-valuemin="0" aria-valuemax="{{ $activeProjectsCount }}"></div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Overdue Alert -->
@@ -181,7 +185,7 @@
         </div>
     </div>
 
-    <!-- Recent Projects & Tasks Section -->
+    <!-- Recent Projects & Tasks -->
     <div class="row">
         <!-- Recent Projects -->
         <div class="col-xl-6 mb-4 mb-xl-0">
@@ -192,7 +196,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    @if(isset($recentProjects) && $recentProjects->count() > 0)
+                    @if(isset($recentProjects) && $recentProjects->isNotEmpty())
                         <ul class="list-group list-group-flush">
                             @foreach($recentProjects as $project)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -200,7 +204,9 @@
                                         <h6 class="mb-1">{{ $project->name ?? 'Proyek Tanpa Nama' }}</h6>
                                         <small class="text-muted">{{ $project->updated_at->diffForHumans() ?? 'Tanggal tidak diketahui' }}</small>
                                     </div>
-                                    <span class="badge {{ $project->status === 'active' ? 'bg-success' : 'bg-secondary' }} rounded-pill">{{ $project->status ?? 'Status Tidak Diketahui' }}</span>
+                                    <span class="badge {{ $project->status === 'active' ? 'bg-success' : 'bg-secondary' }} rounded-pill">
+                                        {{ $project->status ?? 'Status Tidak Diketahui' }}
+                                    </span>
                                 </li>
                             @endforeach
                         </ul>
@@ -220,15 +226,20 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    @if(isset($recentTasks) && $recentTasks->count() > 0)
+                    @if(isset($recentTasks) && $recentTasks->isNotEmpty())
                         <ul class="list-group list-group-flush">
                             @foreach($recentTasks as $task)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-1">{{ $task->title ?? 'Tugas Tanpa Judul' }}</h6>
-                                        <small class="text-muted">{{ $task->project->name ?? 'Tanpa Proyek' }} • {{ $task->updated_at->diffForHumans() ?? 'Tanggal tidak diketahui' }}</small>
+                                        <small class="text-muted">
+                                            {{ $task->project->name ?? 'Tanpa Proyek' }} • 
+                                            {{ $task->updated_at->diffForHumans() ?? 'Tanggal tidak diketahui' }}
+                                        </small>
                                     </div>
-                                    <span class="badge {{ $task->status === 'done' ? 'bg-success' : ($task->status === 'in_progress' ? 'bg-warning' : 'bg-secondary') }} rounded-pill">{{ $task->status ?? 'Status Tidak Diketahui' }}</span>
+                                    <span class="badge {{ $task->status === 'done' ? 'bg-success' : ($task->status === 'in_progress' ? 'bg-warning' : 'bg-secondary') }} rounded-pill">
+                                        {{ $task->status ?? 'Status Tidak Diketahui' }}
+                                    </span>
                                 </li>
                             @endforeach
                         </ul>
@@ -240,10 +251,12 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('styles')
 <style>
+    /* Gradien */
     .bg-gradient-to-r {
         background: linear-gradient(90deg, var(--bs-gradient-start), var(--bs-gradient-end));
     }
@@ -256,13 +269,18 @@
     .from-indigo-500 { --bs-gradient-start: #6366f1; }
     .to-indigo-600 { --bs-gradient-end: #4f46e5; }
 
+    /* Transisi & Hover */
     .transition-all { transition: all 0.3s ease-in-out; }
     .hover\:shadow-xl:hover {
         box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04) !important;
     }
+
+    /* Badge */
     .badge.bg-success.bg-opacity-10 { color: #15803d; background-color: rgba(21, 128, 61, 0.1); }
     .badge.bg-warning.bg-opacity-10 { color: #a16207; background-color: rgba(161, 98, 7, 0.1); }
     .badge.bg-danger.bg-opacity-10 { color: #b91c1c; background-color: rgba(185, 28, 28, 0.1); }
+
+    /* Border left */
     .border-warning { border-left-color: #f59e0b !important; }
     .border-success { border-left-color: #10b981 !important; }
 </style>
@@ -270,7 +288,7 @@
 
 @section('scripts')
 <script>
-    // Contoh: Animasi saat kartu dimuat
+    // Animasi kartu saat dimuat
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, index) => {
