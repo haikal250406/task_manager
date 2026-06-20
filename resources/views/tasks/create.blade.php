@@ -42,21 +42,32 @@
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <label for="project_id" class="form-label fw-semibold">
-                                    Proyek <span class="text-danger">*</span>
+                                    Proyek
                                 </label>
-                                <select name="project_id" id="project_id" 
-                                        class="form-select @error('project_id') is-invalid @enderror" required>
-                                    <option value="">Pilih Proyek</option>
-                                    @foreach($projects as $project)
-                                        <option value="{{ $project->id }}" 
-                                                {{ old('project_id', $projectId ?? '') == $project->id ? 'selected' : '' }}>
-                                            {{ $project->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="input-group">
+                                    <select name="project_id" id="project_id" 
+                                            class="form-select @error('project_id') is-invalid @enderror">
+                                        <option value="">-- Tanpa Proyek (Opsional) --</option>
+                                        @foreach($projects as $project)
+                                            <option value="{{ $project->id }}" 
+                                                    {{ old('project_id', $projectId ?? '') == $project->id ? 'selected' : '' }}>
+                                                {{ $project->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="button" class="btn btn-primary" 
+                                            data-bs-toggle="modal" data-bs-target="#createProjectModal"
+                                            title="Buat Proyek Baru">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
                                 @error('project_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <small class="text-muted mt-1 d-block">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Pilih proyek atau buat proyek baru
+                                </small>
                             </div>
 
                             <div class="col-md-6 mb-4">
@@ -128,4 +139,133 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Create Project -->
+<div class="modal fade" id="createProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-folder-plus me-2"></i>Buat Proyek Baru
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createProjectForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new_project_name" class="form-label fw-semibold">
+                            Nama Proyek <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="new_project_name" name="name" 
+                               placeholder="Contoh: Tugas Mandiri OOP" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_project_description" class="form-label fw-semibold">
+                            Deskripsi
+                        </label>
+                        <textarea class="form-control" id="new_project_description" name="description" 
+                                  rows="3" placeholder="Deskripsi proyek..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_project_status" class="form-label fw-semibold">
+                            Status
+                        </label>
+                        <select class="form-select" id="new_project_status" name="status">
+                            <option value="active" selected>Aktif</option>
+                            <option value="on_hold">Ditangguhkan</option>
+                            <option value="completed">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveProject">
+                        <i class="fas fa-save me-1"></i>Simpan Proyek
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const createProjectForm = document.getElementById('createProjectForm');
+    
+    if (createProjectForm) {
+        createProjectForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('btnSaveProject');
+            const originalText = submitBtn.innerHTML;
+            
+            // Disable button & show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...';
+            
+            try {
+                const response = await fetch('{{ route("projects.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        description: formData.get('description'),
+                        status: formData.get('status'),
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Tambah opsi baru ke dropdown
+                    const projectSelect = document.getElementById('project_id');
+                    const newOption = document.createElement('option');
+                    newOption.value = data.project.id;
+                    newOption.textContent = data.project.name;
+                    newOption.selected = true;
+                    projectSelect.appendChild(newOption);
+                    
+                    // Tutup modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createProjectModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    createProjectForm.reset();
+                    
+                    // Show success message
+                    alert('✅ Proyek "' + data.project.name + '" berhasil dibuat!');
+                } else {
+                    let errorMsg = 'Gagal membuat proyek';
+                    if (data.errors) {
+                        Object.values(data.errors).forEach(err => {
+                            errorMsg += '\n- ' + err[0];
+                        });
+                    } else if (data.message) {
+                        errorMsg = data.message;
+                    }
+                    alert('❌ Error: ' + errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+            } finally {
+                // Enable button kembali
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    }
+});
+</script>
+@endpush

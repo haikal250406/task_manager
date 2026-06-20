@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 // AUTHENTICATION ROUTES (Laravel UI)
 // ============================================
 Auth::routes([
-    'register' => false, // Nonaktifkan register (opsional, biar cuma admin yang bisa tambah user)
+    'register' => true, // Izinkan pendaftaran publik (default role user)
 ]);
 
 // ============================================

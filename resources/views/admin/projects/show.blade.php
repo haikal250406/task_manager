@@ -3,29 +3,23 @@
 @section('title', $project->name)
 
 @section('content')
-<div class="container-fluid py-4 px-3">
-    <!-- Header Project -->
+<div class="container py-4">
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
-            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                        <i class="fas fa-project-diagram text-primary fa-2x"></i>
-                    </div>
-                    <div>
-                        <h2 class="fw-bold text-dark mb-1">{{ $project->name }}</h2>
-                        <div class="d-flex gap-3 text-muted small">
-                            <span><i class="fas fa-user me-1"></i>{{ $project->user->name ?? 'Unknown' }}</span>
-                            <span><i class="far fa-clock me-1"></i>Dibuat {{ $project->created_at->format('d M Y') }}</span>
-                            <span class="badge {{ $project->getStatusBadgeClass() }}">{{ $project->getStatusText() }}</span>
-                        </div>
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold mb-2">{{ $project->name }}</h2>
+                    <div class="d-flex gap-3 text-muted small flex-wrap">
+                        <span><i class="fas fa-user me-1"></i>{{ $project->user->name ?? 'Unknown' }}</span>
+                        <span><i class="far fa-clock me-1"></i>{{ $project->created_at->format('d M Y') }}</span>
+                        <span class="badge bg-primary">{{ ucfirst($project->status ?? 'active') }}</span>
                     </div>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('projects.edit', $project) }}" class="btn btn-warning">
+                    <a href="{{ route('projects.edit', $project) }}" class="btn btn-warning btn-sm">
                         <i class="fas fa-edit me-1"></i> Edit
                     </a>
-                    <a href="{{ route('tasks.create', ['project_id' => $project->id]) }}" class="btn btn-primary">
+                    <a href="{{ route('tasks.create', ['project_id' => $project->id]) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus me-1"></i> Tambah Tugas
                     </a>
                 </div>
@@ -33,20 +27,24 @@
 
             @if($project->description)
                 <hr>
-                <div>
-                    <h6 class="fw-bold text-dark mb-2">Deskripsi</h6>
-                    <p class="text-muted mb-0">{{ $project->description }}</p>
-                </div>
+                <p class="text-muted mb-0">{{ $project->description }}</p>
             @endif
         </div>
     </div>
 
-    <!-- Stats -->
+    @php
+        $allTasks = $project->tasks ?? collect();
+        $totalTasks = $allTasks->count();
+        $completedTasks = $allTasks->filter(fn($t) => in_array(strtolower($t->status), ['done', 'completed', 'selesai']))->count();
+        $inProgressTasks = $allTasks->filter(fn($t) => strtolower($t->status) === 'in_progress')->count();
+        $todoTasks = $allTasks->filter(fn($t) => strtolower($t->status) === 'to_do')->count();
+    @endphp
+
     <div class="row g-3 mb-4">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
                 <div class="card-body text-center">
-                    <h3 class="fw-bold text-primary mb-0">{{ $taskStats['total'] }}</h3>
+                    <h3 class="fw-bold text-primary mb-0">{{ $totalTasks }}</h3>
                     <small class="text-muted">Total Tugas</small>
                 </div>
             </div>
@@ -54,7 +52,7 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-success bg-opacity-10">
                 <div class="card-body text-center">
-                    <h3 class="fw-bold text-success mb-0">{{ $taskStats['completed'] }}</h3>
+                    <h3 class="fw-bold text-success mb-0">{{ $completedTasks }}</h3>
                     <small class="text-muted">Selesai</small>
                 </div>
             </div>
@@ -62,7 +60,7 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
                 <div class="card-body text-center">
-                    <h3 class="fw-bold text-warning mb-0">{{ $taskStats['inProgress'] }}</h3>
+                    <h3 class="fw-bold text-warning mb-0">{{ $inProgressTasks }}</h3>
                     <small class="text-muted">In Progress</small>
                 </div>
             </div>
@@ -70,20 +68,19 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-secondary bg-opacity-10">
                 <div class="card-body text-center">
-                    <h3 class="fw-bold text-secondary mb-0">{{ $taskStats['todo'] }}</h3>
+                    <h3 class="fw-bold text-secondary mb-0">{{ $todoTasks }}</h3>
                     <small class="text-muted">To Do</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tasks List -->
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3">
             <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Daftar Tugas</h5>
         </div>
         <div class="card-body">
-            @if($project->tasks->count() > 0)
+            @if($allTasks->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -96,7 +93,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($project->tasks as $task)
+                            @foreach($allTasks as $task)
                                 <tr>
                                     <td><strong>{{ $task->title }}</strong></td>
                                     <td>
@@ -105,7 +102,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $task->priority === 'High' ? 'danger' : ($task->priority === 'Medium' ? 'warning' : 'info') }}">
+                                        <span class="badge bg-{{ in_array(strtolower($task->priority), ['high', 'critical']) ? 'danger' : (strtolower($task->priority) === 'medium' ? 'warning' : 'info') }}">
                                             {{ $task->priority }}
                                         </span>
                                     </td>

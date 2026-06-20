@@ -47,19 +47,16 @@
                             </div>
                         </div>
 
-                        <div class="d-grid mb-3">
+                        <div class="d-grid gap-2 mb-3">
                             <button type="submit" class="btn btn-dark btn-lg rounded-3 fw-bold shadow-sm py-2" style="letter-spacing: 0.5px; font-size: 1rem;">
                                 Masuk ke Aplikasi
                             </button>
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg rounded-3 fw-semibold py-2 text-decoration-none">
+                                    Daftar (User)
+                                </a>
+                            @endif
                         </div>
-
-                        @if (Route::has('register'))
-                            <div class="text-center mt-4">
-                                <p class="text-muted small mb-0">Belum punya akun? 
-                                    <a href="{{ route('register') }}" class="text-primary fw-semibold text-decoration-none">Daftar Sekarang</a>
-                                </p>
-                            </div>
-                        @endif
 
                     </form>
                 </div>

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task & Project Manager</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Task Manager')</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -16,29 +17,34 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f4f5f7 !important; /* Latar belakang premium lembut */
+            background-color: #f4f5f7 !important;
             color: #2d3748;
         }
         .navbar {
-            background: linear-gradient(135deg, #1e293b, #0f172a) !important; /* Gradien halus di navbar */
+            background: linear-gradient(135deg, #1e293b, #0f172a) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Efek tombol modern global */
         .btn {
             font-weight: 600;
             letter-spacing: -0.2px;
             transition: all 0.2s ease;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #4f46e5, #3b82f6); /* Tombol gradien biru-indigo premium */
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
             border: none;
         }
         .btn-primary:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
+        .alert {
+            border: none;
+            border-radius: 10px;
+        }
     </style>
+    
+    @stack('styles')
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark mb-4 py-3">
@@ -55,10 +61,19 @@
                 @auth
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link fw-medium" href="{{ route('dashboard') }}"><i class="bi bi-grid-1x2-fill me-1 small"></i> Dasbor</a>
+                            <a class="nav-link fw-medium {{ request()->routeIs('dashboard') ? 'text-info' : '' }}" href="{{ route('dashboard') }}">
+                                <i class="bi bi-grid-1x2-fill me-1 small"></i> Dasbor
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-medium" href="{{ route('projects.index') }}"><i class="bi bi-folder-fill me-1 small"></i> Daftar Proyek</a>
+                            <a class="nav-link fw-medium {{ request()->routeIs('projects.*') ? 'text-info' : '' }}" href="{{ route('projects.index') }}">
+                                <i class="bi bi-folder-fill me-1 small"></i> Daftar Proyek
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium {{ request()->routeIs('tasks.*') ? 'text-info' : '' }}" href="{{ route('tasks.index') }}">
+                                <i class="bi bi-list-task me-1 small"></i> Daftar Tugas
+                            </a>
                         </li>
                     </ul>
                 @endauth
@@ -72,6 +87,13 @@
                             <li class="nav-item"><a class="nav-link fw-medium" href="{{ route('register') }}">Register</a></li>
                         @endif
                     @else
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item me-2">
+                                <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-warning rounded-3 px-3">
+                                    <i class="bi bi-shield-lock me-1"></i> Admin Panel
+                                </a>
+                            </li>
+                        @endif
                         <li class="nav-item">
                             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                 @csrf
@@ -87,9 +109,44 @@
     </nav>
 
     <div class="container mb-5">
+        {{-- Flash Messages --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Berhasil!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Error!</strong> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('warning'))
+            <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                <strong>Perhatian!</strong> {{ session('warning') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Info:</strong> {{ session('info') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         @yield('content')
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    @stack('scripts')
 </body>
 </html>
