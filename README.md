@@ -9,6 +9,7 @@ aplikasi menajemen  tugas kelompok berbasis webb dengan penerapan prinsip OPP.
 5. Aldi Kurniawan
 
 
+<<<<<<< HEAD
 
 # project akhir - aplikasi task maneger
 ## deskripsi project 
@@ -19,3 +20,98 @@ Project ini ditujukan untuk memenuhi kriteria tugas akhir kuliah OPP.
 1. manajemen tugas (CRUD): Pengguna dapat menambah, melihat, mengedit, dan menghapus tugas.
 2. Pelacakan Status (Kanban Board): Memudahkan visualisasi progres tugas berdasarkan status (misalnya: To-Do, In Progress, Done).
 3. Manajemen Database Relasional: Menggunakan sistem database MySQL yang terintegrasi dengan  Eloquent ORM Laravel.
+=======
+## 👥 Anggota Tim & Kontribusi Individu
+
+| Nama Anggota | NIM | Peran & Kontribusi Kode Spesifik |
+| :--- | :--- | :--- |
+| **M. Haikal** | *[24210181]* | 
+| **Salman Al Farisi** | *[24210194]* | 
+| **Erliadi** | *[24210145]* | 
+| **Jefri Mulya Pratama** | *[24210178]* | 
+| **Aldi Kurniawan** | *[24210075]* | 
+
+## ✨ Fitur Utama
+* **Sistem Autentikasi:** Login dan Registrasi pengguna yang aman.
+* **Manajemen Proyek (CRUD):** Membuat, melihat, mengedit, dan mengelola proyek.
+* **Papan Kanban (Kanban Board):** Visualisasi progres tugas interaktif dengan status: `To Do`, `In Progress`, dan `Done`.
+* **Kategori Tugas Cerdas:** Pemisahan tugas berdasarkan tipe, seperti *Bug* dan *Feature*.
+* **Soft Deletes:** Fitur pemulihan data; data yang dihapus tidak langsung hilang dari database.
+
+## 💻 Penerapan Prinsip OOP
+1. **Encapsulation (Enkapsulasi):** Memproteksi data dengan atribut `protected $fillable` pada layer Model.
+2. **Inheritance (Pewarisan):** Model `BugTask` dan `FeatureTask` mewarisi seluruh atribut dari class induk `Task`.
+3. **Polymorphism (Polimorfisme):** Penggunaan *Global Scopes* pada class anak untuk memanipulasi *query* tanpa mengubah induk class.
+4. **Object & Class:** Pembuatan objek dinamis pada Controller untuk memproses *request* dari pengguna.
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+* **Backend:** PHP 8.3+, Framework Laravel
+* **Database:** MySQL
+* **Frontend:** HTML5, CSS3, Bootstrap 5, Blade Templating
+* **Version Control:** Git & GitHub
+
+---
+
+## ⚙️ Cara Instalasi & Menjalankan Proyek (Setup Instructions)
+
+Bagi dosen/penguji yang ingin menjalankan aplikasi ini di mesin lokal (seperti XAMPP atau Laragon), silakan ikuti langkah-langkah berikut:
+
+### 1. Kloning Repositori
+Buka Terminal / Command Prompt, lalu jalankan:
+```bash
+git clone [https://github.com/haikal250406/task_manager.git](https://github.com/haikal250406/task_manager.git)
+cd task_manager
+```
+### 2. Instalasi Dependensi
+Instal library PHP dan Frontend yang dibutuhkan:
+```bash
+composer install
+npm install
+npm run build
+```bash
+```
+### 3. Pengaturan Konfigurasi Database (Environment)
+Salin file .env.example menjadi .env:
+```bash
+cp .env.example .env
+```bash
+Buka file .env dan atur koneksi database. Pastikan sudah membuat database kosong di MySQL (misalnya db_task_manager):
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_task_manager
+DB_USERNAME=root
+DB_PASSWORD=
+```
+### 4. Generate Key Aplikasi & Migrasi Database
+Jalankan perintah ini untuk mengamankan aplikasi dan membangun tabel di MySQL:
+```bash
+php artisan key:generate
+php artisan migrate
+```bash
+```
+### 5. Nyalakan Server Lokal
+```bash
+php artisan serve
+```bash
+Aplikasi sudah siap digunakan dan bisa diakses melalui browser pada alamat: http://localhost:8000
+
+```
+## Tangkapan layar
+**1. Halaman Login**
+![Halaman Login](img/tampilan%20Login.jpeg)
+
+**2. Halaman Dashboard**
+![Halaman Dashboard](img/Tampilan%20Dasbord.png)
+
+**3. Halaman Daftar User**
+![Halaman Daftar User](img/Tampilan%20Daftar%20User.jpeg)
+
+**4. Halaman Tambah Tugas**
+![Halaman Tambah Tugas](img/Tambah%20Tugas.jpeg)
+
+
+
+>>>>>>> origin/main
