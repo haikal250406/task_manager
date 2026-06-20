@@ -67,5 +67,19 @@ DB_PORT=3306
 DB_DATABASE=db_task_manager
 DB_USERNAME=root
 DB_PASSWORD=
+```
+### 4. Generate Key Aplikasi & Migrasi Database
+Jalankan perintah ini untuk mengamankan aplikasi dan membangun tabel di MySQL:
+```bash
+php artisan key:generate
+php artisan migrate
+```bash
+```
+### 5. Nyalakan Server Lokal
+```bash
+php artisan serve
+```bash
+Aplikasi sudah siap digunakan dan bisa diakses melalui browser pada alamat: http://localhost:8000
+
 
 
