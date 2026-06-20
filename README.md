@@ -46,4 +46,26 @@ Buka Terminal / Command Prompt, lalu jalankan:
 ```bash
 git clone [https://github.com/haikal250406/task_manager.git](https://github.com/haikal250406/task_manager.git)
 cd task_manager
+```
+### 2. Instalasi Dependensi
+Instal library PHP dan Frontend yang dibutuhkan:
+```bash
+composer install
+npm install
+npm run build
+```bash
+```
+### 3. Pengaturan Konfigurasi Database (Environment)
+Salin file .env.example menjadi .env:
+```bash
+cp .env.example .env
+```bash
+Buka file .env dan atur koneksi database. Pastikan sudah membuat database kosong di MySQL (misalnya db_task_manager):
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_task_manager
+DB_USERNAME=root
+DB_PASSWORD=
+
 
