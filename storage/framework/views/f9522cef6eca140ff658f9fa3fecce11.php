@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Buat Proyek Baru'); ?>
 
-@section('title', 'Buat Proyek Baru')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -21,8 +19,8 @@
                 </div>
                 
                 <div class="card-body p-5">
-                    <form action="{{ route('projects.store') }}" method="POST">
-                        @csrf
+                    <form action="<?php echo e(route('projects.store')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         
                         <!-- Nama Proyek -->
                         <div class="mb-4">
@@ -34,14 +32,28 @@
                                 type="text" 
                                 name="name" 
                                 id="name" 
-                                class="form-control form-control-lg @error('name') is-invalid @enderror" 
-                                value="{{ old('name') }}" 
+                                class="form-control form-control-lg <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                value="<?php echo e(old('name')); ?>" 
                                 placeholder="Contoh: Aplikasi Task Manager" 
                                 required
                                 autofocus>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             <small class="text-muted mt-1 d-block">
                                 <i class="fas fa-info-circle me-1"></i>
                                 Masukkan nama proyek yang jelas dan deskriptif
@@ -57,11 +69,25 @@
                                 name="description" 
                                 id="description" 
                                 rows="4" 
-                                class="form-control @error('description') is-invalid @enderror" 
-                                placeholder="Jelaskan detail proyek, tujuan, dan ruang lingkup...">{{ old('description') }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                                class="form-control <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                                placeholder="Jelaskan detail proyek, tujuan, dan ruang lingkup..."><?php echo e(old('description')); ?></textarea>
+                            <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             <small class="text-muted mt-1 d-block">
                                 <i class="fas fa-lightbulb me-1 text-warning"></i>
                                 Deskripsi yang baik akan membantu tim memahami proyek
@@ -77,25 +103,39 @@
                             <select 
                                 name="status" 
                                 id="status" 
-                                class="form-select form-select-lg @error('status') is-invalid @enderror" 
+                                class="form-select form-select-lg <?php $__errorArgs = ['status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
                                 required>
                                 <option value="">-- Pilih Status --</option>
-                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>
+                                <option value="active" <?php echo e(old('status') == 'active' ? 'selected' : ''); ?>>
                                     🟢 Aktif - Proyek sedang berjalan
                                 </option>
-                                <option value="on_hold" {{ old('status') == 'on_hold' ? 'selected' : '' }}>
+                                <option value="on_hold" <?php echo e(old('status') == 'on_hold' ? 'selected' : ''); ?>>
                                     🟡 Ditangguhkan - Sementara pause
                                 </option>
-                                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>
+                                <option value="completed" <?php echo e(old('status') == 'completed' ? 'selected' : ''); ?>>
                                     🔵 Selesai - Proyek sudah selesai
                                 </option>
-                                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>
+                                <option value="cancelled" <?php echo e(old('status') == 'cancelled' ? 'selected' : ''); ?>>
                                     🔴 Dibatalkan - Proyek dibatalkan
                                 </option>
                             </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <!-- Info Box -->
@@ -117,7 +157,7 @@
                             <button type="submit" class="btn btn-primary btn-lg px-5 py-3 flex-grow-1">
                                 <i class="fas fa-save me-2"></i>Simpan Proyek
                             </button>
-                            <a href="{{ route('projects.index') }}" class="btn btn-outline-secondary btn-lg px-4 py-3">
+                            <a href="<?php echo e(route('projects.index')); ?>" class="btn btn-outline-secondary btn-lg px-4 py-3">
                                 <i class="fas fa-times me-2"></i>Batal
                             </a>
                         </div>
@@ -153,7 +193,7 @@
     </div>
 </div>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -178,5 +218,6 @@
         transform: translateY(-5px);
     }
 </style>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\task_manager\resources\views/projects/create.blade.php ENDPATH**/ ?>
