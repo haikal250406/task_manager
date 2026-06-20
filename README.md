@@ -8,11 +8,11 @@ Proyek ini dibangun menggunakan **Framework Laravel (PHP)** dengan mengimplement
 
 | Nama Anggota | NIM | Peran & Kontribusi Kode Spesifik |
 | :--- | :--- | :--- |
-| **M. Haikal** | *[Isi NIM]* | *[Contoh: Backend Developer, mengatur Migrasi Database & ERD, membuat logika OOP pada Controller]* |
-| **Salman Al Farisi** | *[Isi NIM]* | *[Contoh: Frontend Developer, merancang UI Kanban Board menggunakan Bootstrap 5]* |
-| **Erliadi** | *[Isi NIM]* | *[Contoh: Mengerjakan fitur Sistem Autentikasi (Login/Register) dan Session]* |
-| **Jefri Mulya Pratama** | *[Isi NIM]* | *[Contoh: Mengerjakan fitur CRUD untuk Proyek dan Tugas]* |
-| **Aldi Kurniawan** | *[Isi NIM]* | *[Contoh: Quality Assurance (Testing), Bug Fixing, dan penyusunan README]* |
+| **M. Haikal** | *[24210181]* | 
+| **Salman Al Farisi** | *[24210194]* | 
+| **Erliadi** | *[24210145]* | 
+| **Jefri Mulya Pratama** | *[24210178]* | 
+| **Aldi Kurniawan** | *[24210075]* | 
 
 ## ✨ Fitur Utama
 * **Sistem Autentikasi:** Login dan Registrasi pengguna yang aman.
