@@ -46,3 +46,4 @@ Buka Terminal / Command Prompt, lalu jalankan:
 ```bash
 git clone [https://github.com/haikal250406/task_manager.git](https://github.com/haikal250406/task_manager.git)
 cd task_manager
+
