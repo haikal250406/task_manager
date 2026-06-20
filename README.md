@@ -81,5 +81,18 @@ php artisan serve
 ```bash
 Aplikasi sudah siap digunakan dan bisa diakses melalui browser pada alamat: http://localhost:8000
 
+```
+## Tangkapan layar
+**1. Halaman Login**
+![Halaman Login](img/tampilan%20Login.jpeg)
+
+**2. Halaman Dashboard**
+![Halaman Dashboard](img/Tampilan%20Dasbord%20.png)
+
+**3. Halaman Daftar User**
+![Halaman Daftar User](img/Tampilan%20Daftar%20User.jpeg)
+
+**4. Halaman Tambah Tugas**
+![Halaman Tambah Tugas](img/Tambah%20Tugas.jpeg)
 
 
